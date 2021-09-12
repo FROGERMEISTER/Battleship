@@ -30,6 +30,12 @@ void ABattleShipPlayerController::PlayerTick(float DeltaTime)
 
 		PlayerBoard->ActorLineTraceSingle(Hit, WorldLocation, WorldLocation + (WorldDirection * 10000), ECC_Visibility, RV_TraceParams);
 		MouseTraceLocation = Hit.ImpactPoint;
-		PlayerBoard->UpdateBoardSelectorLocationToGrid(PlayerBoard->WorldLocationToBoardGrid(MouseTraceLocation));
+		std::pair<int, int> NewBoardGrid = PlayerBoard->WorldLocationToBoardGrid(MouseTraceLocation);
+		if (NewBoardGrid != SelectedBoardGrid)
+		{
+			SelectedBoardGrid = NewBoardGrid;
+			PlayerBoard->UpdateBoardSelectorLocationToGrid(NewBoardGrid);
+		}
+		
 	}
 }

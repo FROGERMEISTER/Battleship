@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include <utility>
 #include "GameFramework/PlayerController.h"
 #include "BattleShipPlayerController.generated.h"
 
@@ -22,4 +23,5 @@ public:
 	virtual void PlayerTick(float DeltaTime) override;
 
 	FVector MouseTraceLocation;
+	std::pair<int, int> SelectedBoardGrid;
 };

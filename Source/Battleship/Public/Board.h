@@ -4,7 +4,7 @@
 
 #include <utility>
 #include "CoreMinimal.h"
-#include "Ship.h"
+#include "ShipComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/Pawn.h"
@@ -22,6 +22,8 @@ public:
 	std::pair<int, int> WorldLocationToBoardGrid(FVector WorldLocation);
 	FVector BoardGridToWorldLocation(std::pair<int, int> BoardGrid);
 	void UpdateBoardSelectorLocationToGrid(std::pair<int, int> BoardGrid);
+	UShipComponent* ShipAtGridLocation(std::pair<int, int> BoardGrid);
+
 
 protected:
 	// Called when the game starts or when spawned
@@ -46,8 +48,16 @@ public:
 
 private:
 	std::pair<int, int> GridSize;
+	TArray<UShipComponent*> ShipsLeft;
+	class UShipComponent* CurrentShip;
 
-	TArray<AShip> AShipsLeft;
+	UStaticMesh* ShipMeshAsset;
+	UMaterial* GoodPlacementMaterial;
+	UMaterial* BadPlacementMaterial;
 
 	void OnClick();
+	void OnSecondary();
+	bool AttemptShipPlacement(UShipComponent* Ship);
+	bool CanPlaceShip(UShipComponent* Ship);
+	UShipComponent* AddShip(UShipComponent* Ship);
 };
