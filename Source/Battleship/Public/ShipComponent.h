@@ -20,7 +20,7 @@ public:
 	bool IsBoardGridInShip(std::pair<int, int> Point);
 	bool IsBoardGridInShipX(int PointX);
 	bool IsBoardGridInShipY(int PointY);
-	bool IsLineIntersectingShip(UShipComponent* Ship);
+	bool IsNewShipIntersectingShip(UShipComponent* Ship);
 	void SetShipLocation(std::pair<int, int> ShipStart, std::pair<int, int> ShipEnd);
 	std::pair<int, int> GetShipStart();
 	std::pair<int, int> GetShipEnd();

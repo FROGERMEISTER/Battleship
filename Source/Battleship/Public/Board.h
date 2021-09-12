@@ -47,7 +47,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 private:
-	std::pair<int, int> GridSize;
+	std::pair<int, int> BoardSize = std::pair<int, int>(10, 10);
 	TArray<UShipComponent*> ShipsLeft;
 	class UShipComponent* CurrentShip;
 
@@ -57,6 +57,7 @@ private:
 
 	void OnClick();
 	void OnSecondary();
+	bool IsGridOnBoard(std::pair<int, int> BoardGrid);
 	bool AttemptShipPlacement(UShipComponent* Ship);
 	bool CanPlaceShip(UShipComponent* Ship);
 	UShipComponent* AddShip(UShipComponent* Ship);

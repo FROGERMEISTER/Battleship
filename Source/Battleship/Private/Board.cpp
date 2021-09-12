@@ -154,16 +154,19 @@ bool ABoard::AttemptShipPlacement(UShipComponent* Ship)
 
 bool ABoard::CanPlaceShip(UShipComponent* Ship)
 {
-	
-	for (UShipComponent* ShipIterator : ShipsLeft)
+	if (IsGridOnBoard(Ship->GetShipStart()) && IsGridOnBoard(Ship->GetShipEnd()))
 	{
-		if (ShipIterator->IsLineIntersectingShip(Ship))
+		for (UShipComponent* ShipIterator : ShipsLeft)
 		{
-			return false;
+			if (ShipIterator->IsNewShipIntersectingShip(Ship))
+			{
+				return false;
+			}
 		}
+		UE_LOG(LogTemp, Warning, TEXT("Can place ship"));
+		return true;
 	}
-	UE_LOG(LogTemp, Warning, TEXT("Can place ship"));
-	return true;
+	return false;
 }
 
 UShipComponent* ABoard::AddShip(UShipComponent* Ship)
@@ -179,3 +182,11 @@ UShipComponent* ABoard::AddShip(UShipComponent* Ship)
 	return nullptr;
 }
 
+bool ABoard::IsGridOnBoard(std::pair<int, int> BoardGrid)
+{
+	if (BoardGrid.first >= 0 && BoardGrid.second < BoardSize.first && BoardGrid.second >= 0 && BoardGrid.second < BoardSize.second)
+	{
+		return true;
+	}
+	return false;
+}

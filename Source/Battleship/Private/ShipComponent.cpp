@@ -39,7 +39,7 @@ bool UShipComponent::IsBoardGridInShipY(int pointY)
 	return false;
 }
 
-bool UShipComponent::IsLineIntersectingShip(UShipComponent* Ship)
+bool UShipComponent::IsNewShipIntersectingShip(UShipComponent* Ship)
 {
 	UE_LOG(LogTemp, Warning, TEXT("test place X1=%d Y1=%d to X2=%d Y2=%d"), Ship->GetShipStart().first, Ship->GetShipStart().second, Ship->GetShipEnd().first, Ship->GetShipEnd().second);
 	UE_LOG(LogTemp, Warning, TEXT("test ship X1=%d Y1=%d to X2=%d Y2=%d"), ShipCoordinates.first.first, ShipCoordinates.first.second, ShipCoordinates.second.first, ShipCoordinates.second.second);
