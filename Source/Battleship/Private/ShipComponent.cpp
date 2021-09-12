@@ -8,7 +8,11 @@ UShipComponent::UShipComponent()
 	static ConstructorHelpers::FObjectFinder<UStaticMesh>MeshAsset(TEXT("StaticMesh'/Game/Battleship.Battleship'"));
 	UStaticMesh* Asset = MeshAsset.Object;
 
+	static ConstructorHelpers::FObjectFinder<UMaterial>DestroyedMaterialAsset(TEXT("Material'/Game/DestroyedMaterial.DestroyedMaterial'"));
+	DestroyedMaterial = DestroyedMaterialAsset.Object;
 	
+	DestroyedParts.Init(false, 5);
+
 	this->SetStaticMesh(Asset);
 }
 
@@ -60,6 +64,27 @@ void UShipComponent::SetShipLocation(std::pair<int, int> ShipStart, std::pair<in
 {
 	ShipCoordinates.first = ShipStart;
 	ShipCoordinates.second = ShipEnd;
+}
+
+void UShipComponent::DestroyShip()
+{
+	SetMaterial(0, DestroyedMaterial);
+}
+
+bool UShipComponent::ShootAtShip(std::pair<int, int> BoardGrid)
+{
+	if (IsBoardGridInShip(BoardGrid))
+	{
+		int HitPart = FMath::Max(abs(BoardGrid.first - ShipCoordinates.first.first), abs(BoardGrid.second - ShipCoordinates.first.second));
+		UE_LOG(LogTemp, Warning, TEXT("Hit part: %d"), HitPart);
+		DestroyedParts[HitPart] = true;
+		if (!DestroyedParts.Contains(false))
+		{
+			DestroyShip();
+		}
+		return true;
+	}
+	return false;
 }
 
 std::pair<int, int> UShipComponent::GetShipStart()

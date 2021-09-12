@@ -22,10 +22,15 @@ public:
 	bool IsBoardGridInShipY(int PointY);
 	bool IsNewShipIntersectingShip(UShipComponent* Ship);
 	void SetShipLocation(std::pair<int, int> ShipStart, std::pair<int, int> ShipEnd);
+	void DestroyShip();
+	bool ShootAtShip(std::pair<int, int> BoardGrid);
 	std::pair<int, int> GetShipStart();
 	std::pair<int, int> GetShipEnd();
 
 private:
 	int length;
+	TArray<bool> DestroyedParts;
+	bool IsDestroyed;
+	UMaterial* DestroyedMaterial;
 	std::pair<std::pair<int, int>, std::pair<int, int>> ShipCoordinates;
 };

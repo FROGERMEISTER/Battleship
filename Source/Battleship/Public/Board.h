@@ -57,6 +57,7 @@ private:
 
 	void OnClick();
 	void OnSecondary();
+	void OnShootAtShip();
 	bool IsGridOnBoard(std::pair<int, int> BoardGrid);
 	bool AttemptShipPlacement(UShipComponent* Ship);
 	bool CanPlaceShip(UShipComponent* Ship);

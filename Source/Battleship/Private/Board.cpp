@@ -103,6 +103,7 @@ void ABoard::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	InputComponent->BindAction("Action1", IE_Pressed, this, &ABoard::OnClick);
 	InputComponent->BindAction("Action2", IE_Pressed, this, &ABoard::OnSecondary);
+	InputComponent->BindAction("TestShoot", IE_Pressed, this, &ABoard::OnShootAtShip);
 }
 
 void ABoard::OnClick()
@@ -139,6 +140,21 @@ void ABoard::OnSecondary()
 	
 	UE_LOG(LogTemp, Warning, TEXT("Secondary"));
 	UE_LOG(LogTemp, Warning, TEXT("Number Of ships %d"), ShipsLeft.Num());
+}
+
+void ABoard::OnShootAtShip()
+{
+	ABattleShipPlayerController* PlayerController = Cast<ABattleShipPlayerController>(GetController());
+	if (PlayerController != nullptr)
+	{
+		for (UShipComponent* Ship : ShipsLeft)
+		{
+			if (Ship->ShootAtShip(PlayerController->SelectedBoardGrid))
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Hit"));
+			}
+		}
+	}
 }
 
 bool ABoard::AttemptShipPlacement(UShipComponent* Ship)
