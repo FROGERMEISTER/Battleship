@@ -71,9 +71,9 @@ ABoard::ABoard()
 
 	SelectorMeshComponent->SetMaterial(0, GoodPlacementMaterial);
 
-	/*DefaultShipsToPlace.Add("Carrier", 5);
+	DefaultShipsToPlace.Add("Carrier", 5);
 	DefaultShipsToPlace.Add("Battleship", 4);
-	DefaultShipsToPlace.Add("Cruiser", 3);*/
+	DefaultShipsToPlace.Add("Cruiser", 3);
 	DefaultShipsToPlace.Add("Submarine", 3);
 	DefaultShipsToPlace.Add("Destroyer", 2);
 	AddShipsToPlacementMap(ShipsPlaced, DefaultShipsToPlace);
