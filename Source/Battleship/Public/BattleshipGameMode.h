@@ -25,6 +25,9 @@ public:
 	APawn* SpawnOpponentBoardPawnAtTransform(AController* NewPlayer, const FTransform& SpawnTransform);
 	void TryToStartGame();
 
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class UUserWidget> ShipSunkWidget;
+
 protected:
 	void StartPlacementPhase();
 	void StartShootingPhase();

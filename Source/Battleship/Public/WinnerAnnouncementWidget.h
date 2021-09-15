@@ -4,17 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "MainMenuWidget.generated.h"
+#include "WinnerAnnouncementWidget.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class BATTLESHIP_API UMainMenuWidget : public UUserWidget
+class BATTLESHIP_API UWinnerAnnouncementWidget : public UUserWidget
 {
 	GENERATED_BODY()
 	
-protected:
-
-	void StartGame();
 };

@@ -6,6 +6,9 @@
 #include "Engine/StaticMeshActor.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "BattleShipPlayerController.h"
+#include "BattleShipGameMode.h"
+#include "ShipSunkWidget.h"
+
 
 
 ABattleshipGameState::ABattleshipGameState()
@@ -33,6 +36,7 @@ void ABattleshipGameState::HandleMatchHasStarted()
 
 void ABattleshipGameState::HandleMatchWaitingForPlacement()
 {
+	
 	for (auto& PlayerState : PlayerArray)
 	{
 		ABoard* PlayerBoard = PlayerState->GetOwner<ABattleShipPlayerController>()->GetPawn<ABoard>();
@@ -72,7 +76,7 @@ void ABattleshipGameState::ShootAtOpponent(AController* ShootingPlayer, std::pai
 {
 	for (auto& PlayerState : PlayerArray)
 	{
-		if (PlayerState->GetOwner<AController>() != ShootingPlayer)
+		if (PlayerState->GetOwner<AController>() != ShootingPlayer && bPlayerHasShot == false)
 		{
 			for (auto& Move : ShootingPlayer->GetPlayerState<ABattleshipPlayerState>()->Moves)
 			{
@@ -80,6 +84,7 @@ void ABattleshipGameState::ShootAtOpponent(AController* ShootingPlayer, std::pai
 					return;
 			}
 			ShootingPlayer->GetPlayerState<ABattleshipPlayerState>()->Moves.Add(GridToShootAt);
+			bPlayerHasShot = true;
 			UE_LOG(LogTemp, Warning, TEXT("PlayerController %s"), (PlayerState->GetOwner() != nullptr ? TEXT("true") : TEXT("false")));
 			if (PlayerState->GetOwner<ABattleShipPlayerController>() == nullptr || PlayerState->GetOwner<ABattleShipPlayerController>()->GetPawn<ABoard>() == nullptr)
 				return;
@@ -90,7 +95,14 @@ void ABattleshipGameState::ShootAtOpponent(AController* ShootingPlayer, std::pai
 			if (ShipAtGrid != nullptr)
 				IsHit = ShipAtGrid->ShootAtShip(GridToShootAt);
 			MulticastPlacePins(GridToShootAt.first, GridToShootAt.second, IsHit);
-			EndTurn(ShootingPlayer);
+			if (HasPlayerLost((ABattleshipPlayerState*)PlayerState))
+			{
+				SetMatchState(MatchState::WaitingPostMatch);
+				return;
+			}
+			FTimerHandle TimerHandle;
+			FTimerDelegate TimerDelegate = FTimerDelegate::CreateUObject(this, &ABattleshipGameState::EndTurn, ShootingPlayer);
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDelegate, 3, false);
 			
 		}
 	}
@@ -152,25 +164,30 @@ void ABattleshipGameState::MulticastPlacePins_Implementation(int GridX, int Grid
 	}
 }
 
+void ABattleshipGameState::DisplayShipSunkMessageWithShipKey(FString ShipKey)
+{
+	TSubclassOf<class UUserWidget> WidgetClass = GetWorld()->GetAuthGameMode<ABattleshipGameMode>()->ShipSunkWidget;
+	for (auto& PlayerState : PlayerArray)
+	{
+		UShipSunkWidget* ShipSunkWidget = CreateWidget<UShipSunkWidget>(PlayerState->GetGameInstance(), WidgetClass);
+		ShipSunkWidget->AddToViewport();
+	}
+}
 
 void ABattleshipGameState::StartTurn(AController* Player)
 {
 	Player->Possess(((ABattleShipPlayerController*)Player)->OpponentsBoard);
 	CurrentPlayer = Player;
+	bPlayerHasShot = false;
 }
 
 void ABattleshipGameState::EndTurn(AController* Player)
 {
-	Player->Possess(((ABattleShipPlayerController*)Player)->OwnBoard);
 	for (auto& PlayerState : PlayerArray)
 	{
 		if (PlayerState->GetOwner<ABattleShipPlayerController>() != Player)
 		{
-			if (HasPlayerLost((ABattleshipPlayerState*)PlayerState))
-			{
-				SetMatchState(MatchState::WaitingPostMatch);
-				return;
-			}
+			Player->Possess(((ABattleShipPlayerController*)Player)->OwnBoard);
 			StartTurn(PlayerState->GetOwner<ABattleShipPlayerController>());
 		}
 	}

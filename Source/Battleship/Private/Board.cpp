@@ -73,8 +73,8 @@ ABoard::ABoard()
 
 	/*DefaultShipsToPlace.Add("Carrier", 5);
 	DefaultShipsToPlace.Add("Battleship", 4);
-	DefaultShipsToPlace.Add("Cruiser", 3);
-	DefaultShipsToPlace.Add("Submarine", 3);*/
+	DefaultShipsToPlace.Add("Cruiser", 3);*/
+	DefaultShipsToPlace.Add("Submarine", 3);
 	DefaultShipsToPlace.Add("Destroyer", 2);
 	AddShipsToPlacementMap(ShipsPlaced, DefaultShipsToPlace);
 }
@@ -224,7 +224,6 @@ void ABoard::NextPhase()
 	if (AreAllShipsPlaced())
 	{
 		SelectorMeshComponent->SetStaticMesh(SelectorMesh);
-		UE_LOG(LogTemp, Warning, TEXT("PlacementPhaseOver"));
 		PlacementMode = false;
 		PlayerReady = true;
 		HandlePlayerReady();
@@ -236,15 +235,8 @@ void ABoard::HandlePlayerReady_Implementation()
 	if (AreAllShipsPlaced())
 	{
 		SelectorMeshComponent->SetStaticMesh(SelectorMesh);
-		UE_LOG(LogTemp, Warning, TEXT("PlacementPhaseOver"));
 		PlacementMode = false;
 		PlayerReady = true;
-		if (GetWorld() != NULL)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("World"))
-		}
-		else
-			UE_LOG(LogTemp, Warning, TEXT("NOWORLD"));
 		ABattleshipGameMode* GameMode = GetWorld() != NULL ? GetWorld()->GetAuthGameMode<ABattleshipGameMode>() : NULL;
 		if (GameMode != nullptr)
 			GameMode->TryToStartGame();
@@ -253,13 +245,10 @@ void ABoard::HandlePlayerReady_Implementation()
 
 void ABoard::OnClick()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Click"))
 	ABattleShipPlayerController* PlayerController = Cast<ABattleShipPlayerController>(GetController());
 	if (PlayerController != nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Original Trace %s"), *(PlayerController->MouseTraceLocation.ToString()));
 		std::pair<int, int> BoardGrid = this->WorldLocationToBoardGrid(PlayerController->MouseTraceLocation);
-		UE_LOG(LogTemp, Warning, TEXT("World Location of Grid %s"), *(BoardGridToWorldLocation(BoardGrid).ToString()));
 		if (PlacementMode && AttemptShipPlacement(CurrentShip))
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Placing ship %d"), ShipsOnBoard.Num());
@@ -283,9 +272,6 @@ void ABoard::OnSecondary()
 			}
 		}
 	}
-	
-	UE_LOG(LogTemp, Warning, TEXT("Secondary"));
-	UE_LOG(LogTemp, Warning, TEXT("Number Of ships %d"), ShipsOnBoard.Num());
 }
 
 void ABoard::OnRotateShip()
@@ -391,11 +377,9 @@ void ABoard::HandleAddShip_Implementation()
 void ABoard::RemoveShip(UShipComponent* Ship)
 {
 	FString Key = (*(ShipsPlaced.FindKey(Ship)));
-	UE_LOG(LogTemp, Warning, TEXT("REMOVEDSHIP %s"), *Key);
+	UE_LOG(LogTemp, Warning, TEXT("Remove Ship %s"), *Key);
 	ShipsPlaced.Emplace(Key, nullptr);
-	UE_LOG(LogTemp, Warning, TEXT("TriedToRemoveShip %p"), (void*)ShipsPlaced.Find(Key));
 	int32 RemovedItems = ShipsOnBoard.Remove(Ship);
-	UE_LOG(LogTemp, Warning, TEXT("RemovedShips %d"), RemovedItems);
 	RefreshSelectorValidPlacement();
 	HandleRemoveShip(Ship);
 }

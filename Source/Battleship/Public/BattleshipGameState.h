@@ -35,6 +35,7 @@ public:
 	void ShootAtOpponent(AController* ShootingPlayer, std::pair<int, int> GridToShootAt);
 	void SetMatchState(FName MatchState);
 	bool HasPlayerLost(ABattleshipPlayerState* Player);
+	void DisplayShipSunkMessageWithShipKey(FString ShipKey);
 
 protected:
 	FName MatchState;
@@ -54,6 +55,7 @@ protected:
 	void ServerSetMatchState(const FName& NewMatchState);
 	void ServerSetMatchState_Implementation(const FName& NewMatchState);
 
+	bool bPlayerHasShot = false;
 	AController* CurrentPlayer;
 	UMaterial* HitMaterial;
 	UStaticMesh* PinMesh;

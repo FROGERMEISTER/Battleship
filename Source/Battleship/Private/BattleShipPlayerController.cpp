@@ -4,6 +4,7 @@
 #include "BattleShipPlayerController.h"
 #include "Board.h"
 #include "BattleshipGameMode.h"
+#include "ShipComponent.h"
 #include "Kismet/GameplayStatics.h"
 #define ISDEDICATED (GEngine->GetNetMode(GetWorld()) == NM_DedicatedServer)
 #define ISLISTEN (GEngine->GetNetMode(GetWorld()) == NM_ListenServer)
@@ -21,6 +22,23 @@ ABattleShipPlayerController::ABattleShipPlayerController()
 void ABattleShipPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void ABattleShipPlayerController::OnPossess(APawn* aPawn)
+{
+	Super::OnPossess(aPawn);
+
+	if (aPawn == OwnBoard)
+	{
+		OwnBoard->ReregisterAllComponents();
+		for (auto& Component : ((ABoard*)aPawn)->GetComponentsByClass(UShipComponent::StaticClass()))
+		{
+			OwnBoard->FinishAndRegisterComponent(Component);
+			UE_LOG(LogTemp, Warning, TEXT("ShipComponent %s"), *Component->GetName());
+			
+		}
+		
+	}
 }
 
 void ABattleShipPlayerController::PlayerTick(float DeltaTime)

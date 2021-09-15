@@ -73,6 +73,7 @@ private:
 	std::pair<int, int> ShipPlacementDirection = std::pair<int, int>(-1, 0);
 	int ShipLength = 5;
 	int SelectedShip = 0;
+	bool bAlwaysRelevant = true;
 	
 	UMaterial* GoodPlacementMaterial;
 	UMaterial* BadPlacementMaterial;
