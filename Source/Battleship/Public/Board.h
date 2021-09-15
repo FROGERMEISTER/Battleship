@@ -18,11 +18,18 @@ class BATTLESHIP_API ABoard : public APawn
 public:
 	// Sets default values for this pawn's properties
 	ABoard();
+	/** Property replication */
+	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	std::pair<int, int> WorldLocationToBoardGrid(FVector WorldLocation);
 	FVector BoardGridToWorldLocation(std::pair<int, int> BoardGrid);
-	void UpdateBoardSelectorLocationToGrid(std::pair<int, int> BoardGrid);
+	virtual void UpdateBoardSelectorLocationToGrid(std::pair<int, int> BoardGrid);
+	TArray<FString> GetPlacedShipKeys();
+	void DestroyShipWithKey(FString Key);
 	UShipComponent* ShipAtGridLocation(std::pair<int, int> BoardGrid);
+	bool AreAllShipsPlaced();
+	bool PlacementMode = true;
+	bool PlayerReady = false;
 
 
 protected:
@@ -39,6 +46,9 @@ protected:
 	UPROPERTY(EditAnywhere)
 	class UStaticMeshComponent* SelectorMeshComponent;
 
+	TMap<int, UStaticMesh*> ShipMeshAssets;
+	UStaticMesh* SelectorMesh;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -48,18 +58,54 @@ public:
 
 private:
 	std::pair<int, int> BoardSize = std::pair<int, int>(10, 10);
-	TArray<UShipComponent*> ShipsLeft;
-	class UShipComponent* CurrentShip;
 
-	UStaticMesh* ShipMeshAsset;
+	TArray<UShipComponent*> ShipsOnBoard;
+
+	UPROPERTY(ReplicatedUsing = OnRep_CurrentShip)
+	class UShipComponent* CurrentShip;
+	/** RepNotify for changes made to current ships.*/
+	UFUNCTION()
+	void OnRep_CurrentShip();
+
+	TMap<FString, int> DefaultShipsToPlace;
+	TMap<FString, UShipComponent*> ShipsPlaced;
+
+	std::pair<int, int> ShipPlacementDirection = std::pair<int, int>(-1, 0);
+	int ShipLength = 5;
+	int SelectedShip = 0;
+	
 	UMaterial* GoodPlacementMaterial;
 	UMaterial* BadPlacementMaterial;
 
-	void OnClick();
+	virtual void OnClick();
 	void OnSecondary();
 	void OnShootAtShip();
+	void OnRotateShip();
+	void SelectNextShip();
+	void RefreshSelectorValidPlacement();
+	void NextPhase();
 	bool IsGridOnBoard(std::pair<int, int> BoardGrid);
 	bool AttemptShipPlacement(UShipComponent* Ship);
 	bool CanPlaceShip(UShipComponent* Ship);
 	UShipComponent* AddShip(UShipComponent* Ship);
+	FString GetEmptyShipKeyFromDefaultShips(int length);
+
+	UFUNCTION(Server, Reliable)
+	void HandleAddShip();
+	void HandleAddShip_Implementation();
+
+	UFUNCTION(Server, Reliable)
+	void HandleRemoveShip(UShipComponent* Ship);
+	void HandleRemoveShip_Implementation(UShipComponent* Ship);
+
+	UFUNCTION(Server, Reliable)
+	void CreateNewShip();
+	void CreateNewShip_Implementation();
+
+	UFUNCTION(Server, Reliable)
+	void HandlePlayerReady();
+	void HandlePlayerReady_Implementation();
+
+	void RemoveShip(UShipComponent* Ship);
 };
+

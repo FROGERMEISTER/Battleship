@@ -2,18 +2,13 @@
 
 
 #include "ShipComponent.h"
+#include "Board.h"
 
 UShipComponent::UShipComponent()
 {
-	static ConstructorHelpers::FObjectFinder<UStaticMesh>MeshAsset(TEXT("StaticMesh'/Game/Battleship.Battleship'"));
-	UStaticMesh* Asset = MeshAsset.Object;
-
 	static ConstructorHelpers::FObjectFinder<UMaterial>DestroyedMaterialAsset(TEXT("Material'/Game/DestroyedMaterial.DestroyedMaterial'"));
 	DestroyedMaterial = DestroyedMaterialAsset.Object;
-	
-	DestroyedParts.Init(false, 5);
-
-	this->SetStaticMesh(Asset);
+	SetIsReplicatedByDefault(true);
 }
 
 bool UShipComponent::IsBoardGridInShip(std::pair<int, int> point)
@@ -66,9 +61,23 @@ void UShipComponent::SetShipLocation(std::pair<int, int> ShipStart, std::pair<in
 	ShipCoordinates.second = ShipEnd;
 }
 
+void UShipComponent::HandleSetShipLocation_Implementation(int ShipStartX, int ShipStartY, int ShipEndX, int ShipEndY)
+{
+	SetShipLocation(std::pair<int, int>(ShipStartX, ShipStartY), std::pair<int, int>(ShipEndX, ShipEndY));
+	DestroyedParts.Init(false, GetShipLength());
+}
+
 void UShipComponent::DestroyShip()
 {
+	if (GetOwner<ABoard>() == nullptr)
+		return;
+	GetOwner<ABoard>()->DestroyShipWithKey(ShipKey);
 	SetMaterial(0, DestroyedMaterial);
+}
+
+void UShipComponent::ClientDestroyShip_Implementation()
+{
+	DestroyShip();
 }
 
 bool UShipComponent::ShootAtShip(std::pair<int, int> BoardGrid)
@@ -76,11 +85,12 @@ bool UShipComponent::ShootAtShip(std::pair<int, int> BoardGrid)
 	if (IsBoardGridInShip(BoardGrid))
 	{
 		int HitPart = FMath::Max(abs(BoardGrid.first - ShipCoordinates.first.first), abs(BoardGrid.second - ShipCoordinates.first.second));
-		UE_LOG(LogTemp, Warning, TEXT("Hit part: %d"), HitPart);
+		UE_LOG(LogTemp, Warning, TEXT("Hit part: %d of %d"), HitPart, DestroyedParts.Num());
 		DestroyedParts[HitPart] = true;
 		if (!DestroyedParts.Contains(false))
 		{
 			DestroyShip();
+			ClientDestroyShip();
 		}
 		return true;
 	}
@@ -95,4 +105,9 @@ std::pair<int, int> UShipComponent::GetShipStart()
 std::pair<int, int> UShipComponent::GetShipEnd()
 {
 	return ShipCoordinates.second;
+}
+
+int UShipComponent::GetShipLength()
+{
+	return FMath::Max(abs(ShipCoordinates.first.first - ShipCoordinates.second.first), abs(ShipCoordinates.first.second - ShipCoordinates.second.second)) + 1;
 }

@@ -18,10 +18,16 @@ class BATTLESHIP_API ABattleShipPlayerController : public APlayerController
 public:
 	ABattleShipPlayerController();
 
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
 public:
 	// Called every frame
 	virtual void PlayerTick(float DeltaTime) override;
 
 	FVector MouseTraceLocation;
 	std::pair<int, int> SelectedBoardGrid;
+	APawn* OwnBoard;
+	APawn* OpponentsBoard;
 };

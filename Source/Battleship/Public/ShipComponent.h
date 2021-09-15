@@ -21,11 +21,20 @@ public:
 	bool IsBoardGridInShipX(int PointX);
 	bool IsBoardGridInShipY(int PointY);
 	bool IsNewShipIntersectingShip(UShipComponent* Ship);
+	bool ShootAtShip(std::pair<int, int> BoardGrid);
+
 	void SetShipLocation(std::pair<int, int> ShipStart, std::pair<int, int> ShipEnd);
 	void DestroyShip();
-	bool ShootAtShip(std::pair<int, int> BoardGrid);
+	
+	int GetShipLength();
 	std::pair<int, int> GetShipStart();
 	std::pair<int, int> GetShipEnd();
+
+	UFUNCTION(Server, Reliable)
+	void HandleSetShipLocation(int ShipStartX, int ShipStartY, int ShipEndX, int ShipEndY);
+	void HandleSetShipLocation_Implementation(int ShipStartX, int ShipStartY, int ShipEndX, int ShipEndY);
+
+	FString ShipKey;
 
 private:
 	int length;
@@ -33,4 +42,9 @@ private:
 	bool IsDestroyed;
 	UMaterial* DestroyedMaterial;
 	std::pair<std::pair<int, int>, std::pair<int, int>> ShipCoordinates;
+	bool bReplicates = true;
+
+	UFUNCTION(Client, Reliable)
+	void ClientDestroyShip();
+	void ClientDestroyShip_Implementation();
 };

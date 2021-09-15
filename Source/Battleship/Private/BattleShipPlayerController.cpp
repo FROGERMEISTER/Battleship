@@ -3,6 +3,12 @@
 
 #include "BattleShipPlayerController.h"
 #include "Board.h"
+#include "BattleshipGameMode.h"
+#include "Kismet/GameplayStatics.h"
+#define ISDEDICATED (GEngine->GetNetMode(GetWorld()) == NM_DedicatedServer)
+#define ISLISTEN (GEngine->GetNetMode(GetWorld()) == NM_ListenServer)
+#define ISSTANDALONE (GEngine->GetNetMode(GetWorld()) == NM_Standalone)
+#define ISCLIENT (GEngine->GetNetMode(GetWorld()) == NM_Client)
 
 ABattleShipPlayerController::ABattleShipPlayerController()
 {
@@ -10,6 +16,11 @@ ABattleShipPlayerController::ABattleShipPlayerController()
 	bEnableClickEvents = true;
 	bEnableMouseOverEvents = true;
 	
+}
+
+void ABattleShipPlayerController::BeginPlay()
+{
+	Super::BeginPlay();
 }
 
 void ABattleShipPlayerController::PlayerTick(float DeltaTime)
@@ -29,13 +40,15 @@ void ABattleShipPlayerController::PlayerTick(float DeltaTime)
 		RV_TraceParams.bReturnPhysicalMaterial = false;
 
 		PlayerBoard->ActorLineTraceSingle(Hit, WorldLocation, WorldLocation + (WorldDirection * 10000), ECC_Visibility, RV_TraceParams);
-		MouseTraceLocation = Hit.ImpactPoint;
-		std::pair<int, int> NewBoardGrid = PlayerBoard->WorldLocationToBoardGrid(MouseTraceLocation);
-		if (NewBoardGrid != SelectedBoardGrid)
+		if (Hit.Time < 1)
 		{
-			SelectedBoardGrid = NewBoardGrid;
-			PlayerBoard->UpdateBoardSelectorLocationToGrid(NewBoardGrid);
+			MouseTraceLocation = Hit.ImpactPoint;
+			std::pair<int, int> NewBoardGrid = PlayerBoard->WorldLocationToBoardGrid(MouseTraceLocation);
+			if (NewBoardGrid != SelectedBoardGrid)
+			{
+				SelectedBoardGrid = NewBoardGrid;
+				PlayerBoard->UpdateBoardSelectorLocationToGrid(NewBoardGrid);
+			}
 		}
-		
 	}
 }
